@@ -1,0 +1,86 @@
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+// Update user
+export async function PUT(req: NextRequest, { params }: { params: { userid: string } }) {
+  try {
+    const userId = parseInt(params.userid);
+    if (isNaN(userId)) {
+      return NextResponse.json({ message: "Invalid user ID" }, { status: 400 });
+    }
+
+    const body = await req.json();
+
+    // Check if the user exists
+    const existingUser = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!existingUser) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+
+    // Check if name or email is already taken by another user
+    const isNameTaken = await prisma.user.findFirst({
+      where: { name: body.name, id: { not: userId } },
+    });
+
+    const isEmailTaken = await prisma.user.findFirst({
+      where: { email: body.email, id: { not: userId } },
+    });
+
+    if (isNameTaken) {
+      return NextResponse.json({ message: "Name is already taken!" }, { status: 400 });
+    }
+
+    if (isEmailTaken) {
+      return NextResponse.json({ message: "Email is already registered!" }, { status: 400 });
+    }
+
+    // Update user
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: body.name,
+        email: body.email,
+        status: body.status,
+      },
+    });
+
+    return NextResponse.json(updatedUser, { status: 200 });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    return NextResponse.json(
+      { message: "Error updating user", error: error.message || "Unknown error" },
+      { status: 500 }
+    );
+  }
+}
+
+// Delete user
+export async function DELETE(req: NextRequest, { params }: { params: { userid: string } }) {
+  try {
+    const userId = parseInt(params.userid);
+    if (isNaN(userId)) {
+      return NextResponse.json({ message: "Invalid user ID" }, { status: 400 });
+    }
+
+    // Check if the user exists
+    const existingUser = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!existingUser) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+
+    // Delete user
+    await prisma.user.delete({ where: { id: userId } });
+
+    return NextResponse.json({ message: "User deleted successfully" }, { status: 200 });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return NextResponse.json(
+      { message: "Error deleting user", error: error.message || "Unknown error" },
+      { status: 500 }
+    );
+  }
+}
