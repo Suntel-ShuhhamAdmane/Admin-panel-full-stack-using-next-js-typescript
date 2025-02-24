@@ -3,20 +3,21 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const AdminForm = () => {
-  const [fullName, setFullName] = useState("");
+const UserRegister = () => {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [photo, setPhoto] = useState<File | null>(null);
+  const [profilePicture, SetProfilePicture] = useState<File | null>(null);
+  const [status, setStaus]=useState("Inactive")
   const [preview, setPreview] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const router=useRouter();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: { target: { files: any[]; }; }) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setPhoto(file);
+    SetProfilePicture(file);
     const reader = new FileReader();
     reader.onloadend = () => setPreview(reader.result as string);
     reader.readAsDataURL(file);
@@ -30,10 +31,9 @@ const AdminForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Clear previous messages
     setMessage("");
   
-    if (!fullName || !email || !password || !confirmPassword || !photo) {
+    if (!name || !email || !password || !confirmPassword || !profilePicture) {
       setMessage("All fields are required!");
       return;
     }
@@ -49,10 +49,11 @@ const AdminForm = () => {
     }
   
     const formData = new FormData();
-    formData.append("fullName", fullName);
+    formData.append("name", name);
     formData.append("email", email);
     formData.append("password", password);
-    formData.append("photo", photo);
+    formData.append("profilePicture", profilePicture);
+    formData.append("status", "Inactive"); // Ensure status is always "Inactive"
   
     try {
       const response = await fetch("/admin/api", {
@@ -66,16 +67,16 @@ const AdminForm = () => {
         setMessage("Admin created successfully!");
         setTimeout(() => router.push("/admin/loginForm"), 2000);
         
-        // Clear all fields and reset the form
-        setFullName("");
+        // Reset fields after successful registration
+        setName("");
         setEmail("");
         setPassword("");
         setConfirmPassword("");
-        setPhoto(null);
+        SetProfilePicture(null);
         setPreview(null);
-        setTimeout(() => {
-          setMessage("");
-        }, 2000);
+        setStaus("Inactive"); // Reset status to "Inactive" explicitly
+        
+        setTimeout(() => setMessage(""), 2000);
       } else {
         setMessage(data.error || "Error creating admin");
       }
@@ -87,22 +88,22 @@ const AdminForm = () => {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-2xl font-serif mb-4 text-gray-800">Create Admin</h2>
+        <h2 className="text-2xl font-serif mb-4 text-gray-800">Create User</h2>
         {message && <p className="text-center text-red-500 mb-4">{message}</p>}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="relative">
             <input
               type="text"
-              id="fullName"
-              className="peer block w-full px-2.5 pt-5 pb-2.5 text-gray-900 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"
+              id="name"
+              className="peer block w-full px-2.5 pt-5 pb-2.5 text-black border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"
               placeholder=" "
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
             />
             <label
-              htmlFor="fullName"
-              className="absolute text-sm text-gray-500 left-2 top-2 peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-400 peer-focus:top-1.5 peer-focus:text-blue-600 transition-all"
+              htmlFor="name"
+              className="absolute text-sm text-black left-2 top-2 peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-400 peer-focus:top-1.5 peer-focus:text-blue-600 transition-all"
             >
               Full Name
             </label>
@@ -112,7 +113,7 @@ const AdminForm = () => {
             <input
               type="email"
               id="email"
-              className="peer block w-full px-2.5 pt-5 pb-2.5 text-gray-900 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"
+              className="peer block w-full px-2.5 pt-5 pb-2.5 text-black border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"
               placeholder=" "
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -120,7 +121,7 @@ const AdminForm = () => {
             />
             <label
               htmlFor="email"
-              className="absolute text-sm text-gray-500 left-2 top-1.5 peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-400 peer-focus:top-1.5 peer-focus:text-blue-600 transition-all"
+              className="absolute text-sm text-black left-2 top-1.5 peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-400 peer-focus:top-1.5 peer-focus:text-blue-600 transition-all"
             >
               Email
             </label>
@@ -130,7 +131,7 @@ const AdminForm = () => {
             <input
               type="password"
               id="password"
-              className="peer block w-full px-2.5 pt-5 pb-2.5 text-gray-900 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"
+              className="peer block w-full px-2.5 pt-5 pb-2.5 text-black border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"
               placeholder=" "
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -138,7 +139,7 @@ const AdminForm = () => {
             />
             <label
               htmlFor="password"
-              className="absolute text-sm text-gray-500 left-2 top-1.5 peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-400 peer-focus:top-1.5 peer-focus:text-blue-600 transition-all"
+              className="absolute text-sm text-black left-2 top-1.5 peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-400 peer-focus:top-1.5 peer-focus:text-blue-600 transition-all"
             >
               Password
             </label>
@@ -148,7 +149,7 @@ const AdminForm = () => {
             <input
               type="password"
               id="confirmPassword"
-              className="peer block w-full px-2.5 pt-5 pb-2.5 text-gray-900 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"
+              className="peer block w-full px-2.5 pt-5 pb-2.5 text-black border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"
               placeholder=" "
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -156,7 +157,7 @@ const AdminForm = () => {
             />
             <label
               htmlFor="confirmPassword"
-              className="absolute text-sm text-gray-500 left-2 top-1.5 peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-400 peer-focus:top-1.5 peer-focus:text-blue-600 transition-all"
+              className="absolute text-sm text-black left-2 top-1.5 peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-400 peer-focus:top-1.5 peer-focus:text-blue-600 transition-all"
             >
               Confirm Password
             </label>
@@ -174,8 +175,8 @@ const AdminForm = () => {
             </label>
           </div>
 
-          <button type="submit" className="w-full bg-blue-200 text-white py-2 rounded hover:bg-blue-400">
-            Add Admin
+          <button type="submit" className="w-full bg-blue-200 text-black py-2 rounded hover:bg-blue-400">
+            Register
           </button>
         </form>
       </div>
@@ -183,4 +184,4 @@ const AdminForm = () => {
   );
 };
 
-export default AdminForm;
+export default UserRegister;

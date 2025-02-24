@@ -85,6 +85,7 @@ const CSVUpload = () => {
         if (duplicateCount > 0 && addedRecords > 0) {
           message += `${duplicateCount} records are duplicates. ${addedRecords} records added successfully.`;
           toast.warn(message);
+          setShowErrorModal(false);
         } else if (duplicateCount === totalRecords && totalRecords > 0) {
           message += `All ${totalRecords} records are duplicates! Please check your file.`;
           toast.error(message);
@@ -152,7 +153,8 @@ const CSVUpload = () => {
     a.click();
     document.body.removeChild(a);
   };
-  const handleCorrectFileChange = (e) => {
+
+const handleCorrectFileChange = (e) => {
     const selectedFile = e.target.files?.[0];
   
     if (!selectedFile) return;
@@ -162,9 +164,9 @@ const CSVUpload = () => {
       setFile(null);
       e.target.value = "";
       return;
-    }
+}
   
-    setFile(selectedFile); // Set file, but DO NOT call handleUpload here!
+    setFile(selectedFile); // Set file
   };
   
   // Trigger upload only when `file` state updates
@@ -176,7 +178,7 @@ const CSVUpload = () => {
   
 
 
-  return (
+return (
     <div className="w-1/2 mx-auto mt-8">
       <input   key={inputKey} type="file" accept=".csv" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
 
@@ -341,5 +343,3 @@ const CSVUpload = () => {
 };
 
 export default CSVUpload;
-
-

@@ -72,7 +72,7 @@ const LoginForm = () => {
         {/* New User Link */}
         <p className="text-center text-sm text-gray-600 mt-4">
           New User?{" "}
-          <a href="/dashboard/home" className="text-blue-500 hover:underline">
+          <a href="/admin/adminForm" className="text-blue-500 hover:underline">
             Register here
           </a>
         </p>

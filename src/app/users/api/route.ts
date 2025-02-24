@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -15,71 +15,57 @@ export async function GET() {
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const body = await req.json().catch(() => null);
-
-    if (!body) {
-      return NextResponse.json(
-        { message: "Invalid JSON payload" },
-        { status: 400 }
-      );
-    }
-
-    console.log("Received Data:", body);
-
-    if (!body.name || !body.email || !body.status) {
-      return NextResponse.json(
-        { message: "Missing required fields (name, email, status)" },
-        { status: 400 }
-      );
-    }
-
-    console.log("Prisma Client Initialized:", prisma);
-
-    // Check if name or email already exists
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        OR: [{ name: body.name }, { email: body.email }],
-      },
-    });
-
-    if (existingUser) {
-      if (existingUser.email === body.email) {
-        return NextResponse.json(
-          { message: "Email is already registered" },
-          { status: 400 }
-        );
-      }
-
-      if (existingUser.name === body.name) {
-        return NextResponse.json(
-          { message: "Name is already taken" },
-          { status: 400 }
-        );
-      }
-    }
-
-    // Fetch existing users to determine max ID
-    const existingData = await prisma.user.findMany({ select: { id: true } });
-    const maxExistingId = existingData.reduce((maxId: number, user: { id: number }) => (user.id > maxId ? user.id : maxId), 0);
+    const formData = await req.formData();
 
     
-    const newUser = await prisma.user.create({
-      data: {
-        id: maxExistingId + 1,
-        name: body.name,
-        email: body.email,
-        status: body.status,
-      },
+
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const status = formData.get("status") as string;
+    const profilePicture = formData.get("profilePicture");
+
+    if (!name || !email || !status) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    if (!(profilePicture instanceof File)) {
+      return NextResponse.json({ error: "Invalid file upload" }, { status: 400 });
+    }
+
+    // Convert File to Buffer
+    const arrayBuffer = await profilePicture.arrayBuffer();
+    const buffer = Buffer.from(new Uint8Array(arrayBuffer));
+
+    console.log("Buffer length:", buffer.length);
+    if (buffer.length === 0) {
+      return NextResponse.json({ error: "Failed to process file" }, { status: 400 });
+    }
+
+    //  Ensure email is unique
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      return NextResponse.json({ error: "Email already exists" }, { status: 400 });
+    }
+
+    // Fetch max ID and increment manually
+    const lastUser = await prisma.user.findFirst({
+      orderBy: { id: "desc" }, // Get user with highest ID
+      select: { id: true },
     });
 
-    return NextResponse.json(newUser, { status: 201 });
+    const nextId = lastUser ? lastUser.id + 1 : 1;
+    console.log("Next User ID:", nextId);
+
+    // Save user with binary image
+    const newUser = await prisma.user.create({
+      data: { id: nextId, name, email, status, profilePicture: buffer },
+    });
+
+    return NextResponse.json({ message: "User created successfully", user: newUser });
   } catch (error) {
-    console.error("Database error:", error.message || error);
-    return NextResponse.json(
-      { message: "Error creating user", error: error.message },
-      { status: 500 }
-    );
+    console.error("Error creating user:", error);
+    return NextResponse.json({ error: "Error saving user" }, { status: 500 });
   }
 }

@@ -14,7 +14,7 @@ import { FiUsers, FiUserCheck, FiUserX } from "react-icons/fi";
 import CSVUpload from "./uploadCSV/uploadCSV";
 import ConfirmDeleteModal from './ui/ConfirmDeleteModal';
 import DownloadCSV from './ui/downloadCSV';
-import Sidebar from './sidebar';
+import { useRouter } from 'next/navigation';
 
 
 interface User {
@@ -33,8 +33,12 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-
+  const router = useRouter();
+  const [hoveredUserId, setHoveredUserId] = useState<number | null>(null);
+  
 
   const activeUsers = users.filter((user) => user.status.toLowerCase() === "active").length;
   const inactiveUsers = users.filter((user) => user.status.toLowerCase() === "inactive").length;
@@ -58,62 +62,79 @@ const Dashboard = () => {
     return () => clearInterval(interval); 
   }, []);
 
+  
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+  
+    if (!file) {
+      toast.error("No file selected.");
+      return;
+    }
+    if (!(file instanceof File)) {
+      toast.error("Invalid file type.");
+      return;
+    }
+    setSelectedFile(file);
+    const imageUrl = URL.createObjectURL(file);
+    setPreview(imageUrl);
+  };
+  
   // Add User
   const handleAddUser = async () => {
     setErrorMessage("");
 
-    if (newUser.name && newUser.email && newUser.status) {
-      try {
-        const response = await axios.post("/users/api", newUser);
-        console.log("User added:", response.data);
-        fetchUsers();
-        setNewUser({ name: "", email: "", status: "Active" });
-        setShowAddForm(false);
+    if (!newUser.name || !newUser.email || !newUser.status || !selectedFile) {
+        setErrorMessage("Please fill in all fields and select an image.");
+        toast.error("Please fill in all fields and select an image.");
+        return;
+    }
 
-        // Show success toast
-        toast.success("User added successfully!", {
-          position: "top-right", 
-          autoClose: 3000,       
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
+    if (!(selectedFile instanceof File)) {
+        setErrorMessage("Invalid file selected. Please try again.");
+        toast.error("Invalid file selected. Please try again.");
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append("name", newUser.name);
+        formData.append("email", newUser.email);
+        formData.append("status", newUser.status);
+        formData.append("profilePicture", selectedFile);
+
+        const response = await fetch("/users/api", {
+            method: "POST",
+            body: formData,
         });
 
-      } catch (error) {
-                if (error.response) {
-          setErrorMessage(error.response.data.message);  // Set the error message
+        //Check if response body exists before parsing JSON
+        let data;
+        const text = await response.text();
+        if (text) {
+            data = JSON.parse(text);
         } else {
-          setErrorMessage("An unexpected error occurred. Please try again.");
+            data = {}; // No JSON returned, prevent error
         }
 
-        // Show error toast
-        toast.error(error.response ? error.response.data.message : "An unexpected error occurred. Please try again.", {
-          position: "top-right", // Top-right corner
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-      }
-    } else {
-      setErrorMessage("Please fill in all fields.");
+        if (!response.ok) {
+            throw new Error(data.error || "Something went wrong");
+        }
 
-      // Show error toast for missing fields
-      toast.error("Please fill in all fields.", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
+        console.log("User added:", data);
+        fetchUsers();
+        setNewUser({ name: "", email: "", status: "Active" });
+        setSelectedFile(null);
+        setPreview(null);
+        setShowAddForm(false);
+
+        toast.success("User added successfully!");
+    } catch (error) {
+        console.error("Upload Error:", error);
+        setErrorMessage(error.message || "An error occurred.");
+        toast.error(error.message || "An error occurred.");
     }
-  };
+};
+
   // Save Edited User
   const handleUpdate = async () => {
     if (editUser) {
@@ -310,7 +331,20 @@ const Dashboard = () => {
           {paginatedUsers.length > 0 ? (
             paginatedUsers.map((user) => (
               <tr key={user.id} className="text-center">
-                <td className="p-2 text-black border font-serif">{user.id}</td>
+                <td
+              className="p-2 text-black border font-serif relative cursor-pointer hover:bg-gray-100"
+              onMouseEnter={() => setHoveredUserId(user.id)}
+              onMouseLeave={() => setHoveredUserId(null)}
+              onClick={() => router.push(`/users/profile/${user.id}`)} // Navigate to UserProfile
+            >
+              {user.id}
+              {/* Tooltip - Show Profile */}
+              {hoveredUserId === user.id && (
+                <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded px-2 py-1">
+                  Show Profile
+                </span>
+              )}
+            </td>
                 <td className="p-2 text-black border font-serif">{user.name}</td>
                 <td className="p-2 text-black border font-serif">{user.email}</td>
                 <td className="p-2 text-black border font-serif">{user.status}</td>
@@ -452,6 +486,25 @@ const Dashboard = () => {
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
             </select>
+            <div className="flex flex-col items-center">
+  <label className="relative cursor-pointer">
+    {preview ? (
+      <img src={preview} alt="Profile Preview" className="w-24 h-24 rounded-full shadow-lg object-cover" />
+    ) : (
+      <div className="w-24 h-24 flex items-center justify-center text-gray-500 border border-gray-300 rounded-full bg-gray-100 hover:bg-blue-200">
+        <span>Upload</span>
+      </div>
+    )}
+    <input 
+      type="file" 
+      accept="image/*"  
+      className="hidden" 
+      onChange={handleFileChange} 
+    />
+  </label>
+</div>
+
+
 
             <div className="flex justify-end">
               <button

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+
 const prisma = new PrismaClient();
 
 
@@ -34,7 +35,7 @@ export async function POST(req: NextRequest) {
       data: {
         fullName,
         email,
-        password: hashedPassword, // Store hashed password
+        password: hashedPassword, 
         photo: buffer, // Store image as binary
       },
     });
@@ -45,8 +46,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Error saving admin" }, { status: 500 });
   }
 }
-
-
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const adminId = parseInt(params.id);

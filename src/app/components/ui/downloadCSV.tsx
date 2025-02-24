@@ -19,7 +19,7 @@ const DownloadCSV = () => {
       }
 
       // Ensure that we handle the headers properly
-      const headers = Object.keys(users[0]); 
+      const headers = ["id", "name", "email", "status"];
 
       // Convert JSON to CSV format (ensure consistent data)
       const csvHeader = headers.join(",") + "\n";
