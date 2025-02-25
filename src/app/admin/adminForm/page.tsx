@@ -1,4 +1,4 @@
-import AdminForm from "@/app/adminUI/adminForm";
+import AdminForm from "@/app/adminUI/adminForm/page";
 
 export default function Admin(){
     return(

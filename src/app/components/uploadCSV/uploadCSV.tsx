@@ -9,7 +9,7 @@ const CSVUpload = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [duplicates, setDuplicates] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [errors, setErrors] = useState([]); // Store errors
+  const [errors, setErrors] = useState([]); 
   const [showErrorModal, setShowErrorModal] = useState(false);
 
   const fileInputRef = useRef(null);

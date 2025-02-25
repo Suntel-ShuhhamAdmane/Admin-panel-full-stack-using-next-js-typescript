@@ -20,7 +20,9 @@ model User{
   status String
   password String
   profilePicture Bytes?
-  role String
+  role     String @default("user")
+
+  PasswordResetToken PasswordResetToken[]
 }
 
 model Admin{
@@ -29,8 +31,24 @@ model Admin{
   email String @unique
   password String
   photo Bytes?
+  role      String @default("admin")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  role String
+   PasswordResetTokens PasswordResetToken[]
+   
 }
+model PasswordResetToken {
+  id        String   @id @default(uuid()) 
+  token     String   @unique
+  expires   DateTime
+  userId    Int?     @unique  
+  adminId   Int?     @unique
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  admin     Admin?   @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+
+
+
 

@@ -12,23 +12,23 @@ export async function GET(req: Request, context: { params: { id: string } }) {
       return NextResponse.json({ error: "Missing admin ID" }, { status: 400 });
     }
 
-    // Convert ID to a number 
-    const adminId = parseInt(params.id, 10);
-    if (isNaN(adminId)) {
+    // Convert ID to a number if Prisma expects an integer
+    const userId = parseInt(params.id, 10);
+    if (isNaN(userId)) {
       return NextResponse.json({ error: "Invalid admin ID" }, { status: 400 });
     }
 
-    const admin = await prisma.admin.findUnique({
-      where: { id: adminId },
-      select: { photo: true },
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { profilePicture: true },
     });
 
-    if (!admin || !admin.photo) {
+    if (!user || !user.profilePicture) {
       return NextResponse.json({ error: "No image available" }, { status: 404 });
     }
 
     // Convert BLOB to Base64
-    const base64Image = Buffer.from(admin.photo).toString("base64");
+    const base64Image = Buffer.from(user.profilePicture).toString("base64");
 
     return NextResponse.json({ photo: base64Image });
   } catch (error) {

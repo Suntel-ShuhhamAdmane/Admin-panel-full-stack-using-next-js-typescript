@@ -1,4 +1,6 @@
 import Sidebar from "@/app/components/sidebar";
+import { Providers } from "@/app/providers";
+
 
 export default function RootLayout({
   children,
@@ -8,7 +10,7 @@ export default function RootLayout({
   return (
     <div className="bg-white min-h-screen w-full">
       <Sidebar />
-      <div className="w-full">{children}</div>
+      <div className="w-full"><Providers >{children}</Providers></div>
     </div>
   );
 }

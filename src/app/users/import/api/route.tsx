@@ -28,10 +28,21 @@ const parseCSV = (csvText: string) => {
       return acc;
     }, {});
 
-    if (!record.name || !record.email || !record.status) {
-      errors.push({ rowNumber: index + 2, message: "Missing required fields", rowData: record });
+    if (!record.name) {
+      errors.push({ rowNumber: index + 2, message: "Missing required field: name", rowData: record });
+    }
+    if (!record.email) {
+      errors.push({ rowNumber: index + 2, message: "Missing required field: email", rowData: record });
+    }
+    if (!record.status) {
+      errors.push({ rowNumber: index + 2, message: "Missing required field: status", rowData: record });
+    }
+    
+    // If any errors were added, return early to avoid further processing
+    if (errors.some(error => error.rowNumber === index + 2)) {
       return;
     }
+    
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(record.email)) {

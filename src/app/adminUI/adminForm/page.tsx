@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AiOutlineClose } from "react-icons/ai";
 
 const AdminForm = () => {
   const [fullName, setFullName] = useState("");
@@ -64,7 +65,7 @@ const AdminForm = () => {
   
       if (response.ok) {
         setMessage("Admin created successfully!");
-        setTimeout(() => router.push("/admin/loginForm"), 2000);
+        setTimeout(() => router.push("/"), 1000);
         
         // Clear all fields and reset the form
         setFullName("");
@@ -75,7 +76,7 @@ const AdminForm = () => {
         setPreview(null);
         setTimeout(() => {
           setMessage("");
-        }, 2000);
+        }, 0);
       } else {
         setMessage(data.error || "Error creating admin");
       }
@@ -86,8 +87,16 @@ const AdminForm = () => {
   
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
+     
       <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
+      <button
+                  className="absolute top-2 right-2 text-black"
+                  onClick={() => router.push("/")}
+                >
+                  <AiOutlineClose size={24} />
+                </button>
         <h2 className="text-2xl font-serif mb-4 text-gray-800">Create Admin</h2>
+        
         {message && <p className="text-center text-red-500 mb-4">{message}</p>}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="relative">
@@ -174,7 +183,7 @@ const AdminForm = () => {
             </label>
           </div>
 
-          <button type="submit" className="w-full bg-blue-200 text-white py-2 rounded hover:bg-blue-400">
+          <button type="submit" className="w-full bg-blue-200 text-black py-2 rounded hover:bg-blue-400">
             Add Admin
           </button>
         </form>
