@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-export async function middleware(req) {
+export async function middleware(req: { nextUrl: { pathname: any; }; url: string | URL | undefined; }) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   const { pathname } = req.nextUrl;
 
-  // If no token exists (user is logged out), redirect to login/error page
+  // If no token exists  redirect to login page
   if (!token) {
     const url = new URL("/", req.url); 
     url.searchParams.set("message", "Session expired. Please log in again.");
@@ -14,7 +14,7 @@ export async function middleware(req) {
   }
 
   // Restrict non-admins from accessing admin dashboard routes
-  if (pathname.startsWith("/admin/dashboard") && pathname !== "/user/dashboard" && token.role !== "admin") {
+  if (pathname.startsWith("/dashboard/user") && pathname !== "/dashboard/home" && token.role !== "admin") {
     const url = new URL("/error", req.url);
     url.searchParams.set("message", "Access denied. You are not authorized.");
     return NextResponse.redirect(url);
@@ -24,5 +24,5 @@ export async function middleware(req) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/user/:path*"], // Protect dashboard routes
+  matcher: ["/dashboard/:path*","/notifications"  ,"/profile"],
 };

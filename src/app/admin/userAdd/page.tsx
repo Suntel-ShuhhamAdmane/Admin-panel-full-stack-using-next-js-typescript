@@ -17,7 +17,7 @@ const UserAdd = () => {
   const [message, setMessage] = useState("");
   const router = useRouter();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: { target: { files: any[]; }; }) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setProfilePicture(file);
@@ -67,7 +67,7 @@ const UserAdd = () => {
 
       if (response.ok) {
         toast.success("User added successfully!");
-        setTimeout(() => router.push("/dashboard"), 2000);
+        setTimeout(() => router.push("/dashboard/user"), 2000);
 
         setName("");
         setEmail("");

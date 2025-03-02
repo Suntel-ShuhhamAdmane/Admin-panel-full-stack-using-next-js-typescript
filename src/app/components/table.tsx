@@ -117,7 +117,7 @@ const Table = () => {
                             </tbody>
                         </table>
                     </div>
-                    <div className="flex justify-between items-center mt-4 ">
+                    <div className="flex justify-between items-center mt-7 px-2 ">
                         <button onClick={() => setPage((prev) => Math.max(prev - 1, 0))} disabled={page === 0} className="px-4 py-2 bg-blue-200 text-black rounded-md hover:bg-blue-200 disabled:bg-gray-300">
                             <HiChevronLeft size={20} />
                         </button>
@@ -127,9 +127,9 @@ const Table = () => {
                         </button>
                     </div>
                 </div>
-                <div className="w-full mr-4 pl-3 h-[120px] md-0 pd-0">
-                    <div className="bg-white rounded-lg shadow-lg p-4 h-[405px] ">
-                        <h2 className="text-xl font-serif text-gray-700 mb-2 ">User Status Chart</h2>
+                <div className="w-full mr-4 pl-3 h-[130px] md-0 pd-0">
+                    <div className="bg-white rounded-lg shadow-lg p-4 h-[325px] ">
+                        <h2 className="text-xl font-serif text-gray-700 ">User Status Chart</h2>
                         <BarChart
                             xAxis={[{ scaleType: "band", data: ["Active", "Inactive"] }]}
                             series={[

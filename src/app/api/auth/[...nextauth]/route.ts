@@ -45,6 +45,7 @@ export const authOptions = {
           email: user.email,
           role,
           status: user.status, // Include status in session
+
         };
       },
     }),
@@ -56,6 +57,8 @@ export const authOptions = {
         token.role = user.role;
         token.status = user.status; 
         token.name = user.name; 
+        
+        
       }
       return token;
     },
@@ -65,6 +68,7 @@ export const authOptions = {
         session.user.role = token.role;
         session.user.status = token.status;
         session.user.name = token.name; 
+        
       }
       return session;
     },

@@ -1,4 +1,4 @@
-import UserRegister from "@/app/adminUI/userForm/page";
+import UserRegister from "@/app/user/register/page";
 
 export default function Register(){
     return(

@@ -23,6 +23,7 @@ model User{
   role     String @default("user")
 
   PasswordResetToken PasswordResetToken[]
+  createdAt  DateTime @default(now())
 }
 
 model Admin{

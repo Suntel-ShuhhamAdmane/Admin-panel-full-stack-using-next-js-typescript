@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { stat } from "fs";
 
 const prisma = new PrismaClient();
 
@@ -35,3 +36,5 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     return NextResponse.json({ message: "Error uploading image" }, { status: 500 });
   }
 }
+
+

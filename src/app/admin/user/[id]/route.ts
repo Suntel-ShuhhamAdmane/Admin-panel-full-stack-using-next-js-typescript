@@ -20,7 +20,7 @@ export async function GET(req: Request, context: { params: { id: string } }) {
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { profilePicture: true },
+      select: { profilePicture: true, name:true, email: true,status:true },
     });
 
     if (!user || !user.profilePicture) {
@@ -30,7 +30,13 @@ export async function GET(req: Request, context: { params: { id: string } }) {
     // Convert BLOB to Base64
     const base64Image = Buffer.from(user.profilePicture).toString("base64");
 
-    return NextResponse.json({ photo: base64Image });
+    return NextResponse.json({ 
+      photo: base64Image,
+        name: user.name,
+        email: user.email,
+        status: user.status,
+
+     });
   } catch (error) {
     console.error("Error fetching admin photo:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

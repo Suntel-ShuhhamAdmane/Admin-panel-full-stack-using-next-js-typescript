@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { notifyClients } from "@/app/polling/api/route";
 
 const prisma = new PrismaClient();
 
@@ -15,7 +16,6 @@ export async function GET() {
     );
   }
 }
-
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Fetch max ID and increment manually
+    // max id
     const lastUser = await prisma.user.findFirst({
       orderBy: { id: "desc" },
       select: { id: true },
@@ -71,10 +71,11 @@ export async function POST(req: NextRequest) {
         email, 
         password: hashedPassword, 
         status, 
-        role: "user", // Set role as "user"
+        role: "user", 
         profilePicture: buffer 
       },
     });
+    notifyClients({ id: newUser.id, name: newUser.name, email: newUser.email });
 
     return NextResponse.json({ message: "User created successfully", user: newUser });
   } catch (error) {

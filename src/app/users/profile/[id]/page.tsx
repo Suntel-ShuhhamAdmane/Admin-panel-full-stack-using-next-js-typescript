@@ -69,14 +69,16 @@ const UserProfile = () => {
       <div className="flex flex-col items-center">
         {user.profilePicture ? (
           <Image
-            src={user.profilePicture}
-            alt="Profile Picture"
-            width={120}
-            height={120}
-            className="rounded-full border-4 border-gray-300 shadow-md"
-            unoptimized
-          />
-        ) : (
+          src={user.profilePicture}
+          alt="Profile Picture"
+          width={120}
+          height={120}
+          className="rounded-full border-4 border-gray-300 shadow-md object-cover"
+          style={{ aspectRatio: "1 / 1" }}
+        />
+        
+        ) : 
+        (
           <Image
             src="/default-avatar.png"
             alt="Default Profile"
@@ -84,7 +86,8 @@ const UserProfile = () => {
             height={120}
             className="rounded-full border-4 border-gray-300 shadow-md"
           />
-        )}
+        )
+        }
         <div className="text-gray-700 text-center mt-4">
           <p className="text-lg font-medium"><strong>Name:</strong> {user.name}</p>
           <p className="text-lg"><strong>Email:</strong> {user.email}</p>
@@ -97,7 +100,7 @@ const UserProfile = () => {
       </div>
       <button
         className="mt-6 w-full px-4 py-2 bg-blue-200 text-black rounded-lg hover:bg-blue-200 transition"
-        onClick={() => router.push("/dashboard")}
+        onClick={() => router.push("/dashboard/user")}
       >
         ⬅ Back to Users List
       </button>

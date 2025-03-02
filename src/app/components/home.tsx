@@ -10,6 +10,7 @@ import RunningProjects from "./ui/RunningProjects";
 import PageSearchComponent from "./ui/pageSearchComp";
 import { useSession } from "next-auth/react";
 import Logout from "../logout";
+import Notification from "../notifications/userNotifications";
 
 
 interface User {
@@ -58,10 +59,15 @@ const DashboardReadOnly = () => {
 
   return (
     <div className="w-4/5 pl-5 px-5 ml-64 mb-0 bg-gray-100 min-h-screen">
-      <div className="fixed ml-10  top-0 left-1/3 transform -translate-x-1/2 w-1/3 mx-32 text-center mr-10 pt-2">
+      {/* <div className="fixed ml-10  top-0 left-1/3 transform -translate-x-1/2 w-1/3 mx-32 text-center mr-10 pt-2">
         <PageSearchComponent />
+      </div> */}
+      <div className="w-full flex justify-end items-center pt-4 pr-14 space-x-4">
+        {session?.user?.role === "admin" && <Notification />}
+        <Logout />
       </div>
-      <div className=" rounded-lg p-4 text-end ml-4 text-xl font-serif text-black">
+
+      <div className=" rounded-lg p-4  ml-4 text-xl font-serif text-black">
         {session?.user ? (
           <>
             {session.user.role === "admin" ? (
@@ -78,7 +84,8 @@ const DashboardReadOnly = () => {
           "Welcome!"
         )}
       </div>
-      <div className="text-end"><Logout /></div>
+
+
 
       {/* Stats Section */}
       <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 mb-6 pt-10">

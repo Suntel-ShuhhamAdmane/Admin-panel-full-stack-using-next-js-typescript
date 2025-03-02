@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AdminForm = () => {
   const [fullName, setFullName] = useState("");
@@ -12,7 +14,7 @@ const AdminForm = () => {
   const [photo, setPhoto] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [message, setMessage] = useState("");
-  const router=useRouter();
+  const router = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -30,43 +32,44 @@ const AdminForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Clear previous messages
     setMessage("");
-  
+
     if (!fullName || !email || !password || !confirmPassword || !photo) {
       setMessage("All fields are required!");
       return;
     }
-  
+
     if (password !== confirmPassword) {
       setMessage("Passwords do not match!");
       return;
     }
-  
+
     if (!validatePassword(password)) {
       setMessage("Password must be at least 8 characters long, include 1 uppercase letter, 1 number, and 1 special character.");
       return;
     }
-  
+
     const formData = new FormData();
     formData.append("fullName", fullName);
     formData.append("email", email);
     formData.append("password", password);
     formData.append("photo", photo);
-  
+
     try {
       const response = await fetch("/admin/api", {
         method: "POST",
         body: formData,
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         setMessage("Admin created successfully!");
-        setTimeout(() => router.push("/"), 1000);
-        
+        toast.success("profile Created successfully!");
+        setTimeout(() => router.push("/"), 2000);
+
         // Clear all fields and reset the form
         setFullName("");
         setEmail("");
@@ -84,19 +87,19 @@ const AdminForm = () => {
       setMessage("Something went wrong! Please try again.");
     }
   };
-  
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
-     
+
       <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
-      <button
-                  className="absolute top-2 right-2 text-black"
-                  onClick={() => router.push("/")}
-                >
-                  <AiOutlineClose size={24} />
-                </button>
+        <button
+          className="absolute top-2 right-2 text-black"
+          onClick={() => router.push("/")}
+        >
+          <AiOutlineClose size={24} />
+        </button>
         <h2 className="text-2xl font-serif mb-4 text-gray-800">Create Admin</h2>
-        
+
         {message && <p className="text-center text-red-500 mb-4">{message}</p>}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="relative">

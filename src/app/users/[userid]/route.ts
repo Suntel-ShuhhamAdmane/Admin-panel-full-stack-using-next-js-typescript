@@ -20,19 +20,13 @@ export async function PUT(req: NextRequest, { params }: { params: { userid: stri
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    // Check if name or email is already taken by another user
-    const isNameTaken = await prisma.user.findFirst({
-      where: { name: body.name, id: { not: userId } },
-    });
+    
 
     const isEmailTaken = await prisma.user.findFirst({
       where: { email: body.email, id: { not: userId } },
     });
 
-    if (isNameTaken) {
-      return NextResponse.json({ message: "Name is already taken!" }, { status: 400 });
-    }
-
+    
     if (isEmailTaken) {
       return NextResponse.json({ message: "Email is already registered!" }, { status: 400 });
     }

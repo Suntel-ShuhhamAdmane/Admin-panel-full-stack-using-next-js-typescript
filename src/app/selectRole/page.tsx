@@ -12,14 +12,14 @@ const RoleSelection = () => {
 
         <div className="space-y-4">
           <button
-            onClick={() => router.push("/adminUI/userForm")}
+            onClick={() => router.push("/user/register")}
             className="w-full bg-blue-200 text-black py-2 rounded hover:bg-blue-400 transition duration-200"
           >
             Register as User
           </button>
 
           <button
-            onClick={() => router.push("/adminUI/adminForm")}
+            onClick={() => router.push("/admin/register")}
             className="w-full bg-blue-200 text-black py-2 rounded hover:bg-blue-400 transition duration-200"
           >
             Go to Admin Form

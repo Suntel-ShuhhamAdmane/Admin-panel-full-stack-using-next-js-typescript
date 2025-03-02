@@ -97,7 +97,7 @@ const LoginForm = () => {
         )}
           <p className="text-center text-sm text-gray-600 mt-4">
           New User?{" "}
-          <a href="/adminUI" className="text-blue-500 hover:underline">
+          <a href="/selectRole" className="text-blue-500 hover:underline">
             Register here
           </a>
         </p>

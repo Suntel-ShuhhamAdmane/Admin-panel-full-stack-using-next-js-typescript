@@ -1,4 +1,4 @@
-import LoginForm from "@/app/adminUI/LoginForm";
+import LoginForm from "@/app/auth/LoginForm";
 
 export default function Login(){
     return(

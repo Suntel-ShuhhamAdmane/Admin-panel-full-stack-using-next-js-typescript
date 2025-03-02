@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
-const SECRET_KEY = process.env.JWT_SECRET ; // Ensure this is in .env
+const SECRET_KEY = process.env.JWT_SECRET ; 
 
 export async function POST(req: Request) {
   try {
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
       message: "Login successful",
       token,
       role,
-      redirectTo: role === "admin" ? "/dashboard" : "/dashboard/home",
+      redirectTo: role === "admin" ? "/admin/dashboard" : "/user/dashboard",
     });
   } catch (error) {
     console.error("Login Error:", error);

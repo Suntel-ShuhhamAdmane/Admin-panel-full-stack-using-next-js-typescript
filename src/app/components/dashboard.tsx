@@ -18,6 +18,7 @@ import DownloadCSV from './ui/downloadCSV';
 import { useRouter } from 'next/navigation';
 import "react-toastify/dist/ReactToastify.css";
 import Logout from '../logout';
+import Notification from '../notifications/userNotifications';
 
 
 interface User {
@@ -60,9 +61,9 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    fetchUsers(); // 
+    fetchUsers(); 
 
-    const interval = setInterval(fetchUsers, 3000);
+    const interval = setInterval(fetchUsers, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -163,11 +164,11 @@ const Dashboard = () => {
   const [showModal, setShowModal] = useState(false);
   const [userIdToDelete, setUserIdToDelete] = useState(null);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: never) => {
     try {
       await axios.delete(`/users/${id}`);
       fetchUsers();
-      setShowModal(false); // Hide the modal after deletion
+      setShowModal(false); // 
     } catch (error) {
       console.error("Error deleting user:", error);
     }
@@ -243,7 +244,8 @@ const Dashboard = () => {
     ? users.filter(
       (user) =>
         user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchQuery.toLowerCase())
+        user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.id.toString().includes(searchQuery)
     )
     : users;
 
@@ -259,7 +261,11 @@ const Dashboard = () => {
 
   return (
     <div className="w-3/4 px-10 ml-[280px] bg-white-800">
-      <div className="text-end pt-4 ml-10"><Logout /></div>
+       <div className="w-full flex justify-end items-center pt-4 pr-5 space-x-4">
+        <Notification />
+        <Logout />
+      </div>
+
       <h2 className="text-2xl text-black font-serif mb-4 pt-3" > Dashboard</h2>
 
       {/* Stats Section */}
@@ -284,8 +290,6 @@ const Dashboard = () => {
       <h2 className="text-xl text-black font-serif mt-5">User List</h2>
       <div className="w-full mt-10 ml-0">
 
-
-
         {/* User List Table */}
         <div className="flex justify-between items-center mt-4 w-full">
           {/*  Search Component on the left */}
@@ -296,15 +300,12 @@ const Dashboard = () => {
               setSearchResults={setSearchResults}
             />
           </div>
-
-
-          {/*  Three buttons on the right (No changes) */}
           <div className="flex items-center space-x-4">
             <DownloadCSV />
             <CSVUpload />
             <button
               onClick={() => {
-                router.push("/adminUI/userAdd"); // Navigate to the user form
+                router.push("/admin/userAdd"); // Navigate to the user form
               }}
               className="bg-blue-200 text-black px-4 mt-6 py-2 rounded flex items-center space-x-2 hover:bg-blue-300 transition duration-200"
             >
@@ -374,7 +375,7 @@ const Dashboard = () => {
           </tbody>
         </table>
 
-        {/* Pagination Controls */}
+        {/* Pagination */}
         <div className="flex justify-between items-center mt-4">
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
@@ -401,7 +402,6 @@ const Dashboard = () => {
           <div className="bg-white p-5 rounded shadow-lg w-1/3">
             <h2 className="text-lg text-black font-bold mb-2">Edit User</h2>
 
-            {/* Name Input */}
             <input
               type="text"
               value={editUser.name}
@@ -409,7 +409,6 @@ const Dashboard = () => {
               className="border text-black p-2 w-full my-2"
             />
 
-            {/* Email Input */}
             <input
               type="email"
               value={editUser.email}
@@ -417,7 +416,6 @@ const Dashboard = () => {
               className="border text-black p-2 w-full my-2"
             />
 
-            {/* Status Select */}
             <select
               value={editUser.status}
               onChange={(e) => setEditUser({ ...editUser, status: e.target.value })}
@@ -427,7 +425,7 @@ const Dashboard = () => {
               <option value="Inactive">Inactive</option>
             </select>
 
-            {/* Error Message Display */}
+            {/* Error Message  */}
             {errorMessage && (
               <div className="text-red-500 text-sm mb-4">{errorMessage}</div>
             )}
@@ -508,9 +506,6 @@ const Dashboard = () => {
                 />
               </label>
             </div>
-
-
-
             <div className="flex justify-end">
               <button
                 onClick={() => setShowAddForm(false)}
